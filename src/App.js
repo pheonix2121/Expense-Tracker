@@ -3,7 +3,7 @@ import { useContext, useEffect } from "react";
 import AuthContext from "./store/AuthContext";
 import LoginPage from "./components/LoginPage";
 import Home from "./components/Home";
-
+import Profile from "./components/ProfilePage";
 function App() {
   const authCtx = useContext(AuthContext);
   const navigate = useNavigate();
@@ -19,6 +19,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="*" element={authCtx.isLoggedIn ? null : <Navigate to="/" replace />} />
       </Routes>
   );

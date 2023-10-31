@@ -4,8 +4,10 @@ const AuthContext = React.createContext({
   token: "",
   userEmail: "",
   isLoggedIn: false,
+  isProfileCompleted: false,
   login: (userAuthData) => {},
   logout: () => {},
+  updateProfileCompletion: (isCompleted) => {},
 });
 
 export const AuthContextProvider = (props) => {
@@ -14,29 +16,45 @@ export const AuthContextProvider = (props) => {
   const [userEmail, setUserEmail] = useState(
     initialToken ? initialToken.userEmail : ""
   );
+  const [isProfileCompleted, setIsProfileCompleted] = useState(
+    initialToken ? initialToken.isProfileCompleted : false
+  );
 
   const userIsLoggedIn = !!token;
 
   const loginHandler = (userData) => {
-    console.log(userData);
     setUserEmail(userData.userEmail);
     setToken(userData.token);
-    localStorage.setItem("userdata", JSON.stringify(userData));
+    setIsProfileCompleted(userData.isProfileCompleted);
+    localStorage.setItem(
+      "userdata",
+      JSON.stringify({
+        token: userData.token,
+        userEmail: userData.userEmail,
+        isProfileCompleted: userData.isProfileCompleted,
+      })
+    );
   };
-
   const logoutHandler = () => {
     setToken(null);
+    setUserEmail("");
+    setIsProfileCompleted(false);
     localStorage.removeItem("userdata");
+  };
+  const updateProfileCompletionHandler = (isCompleted) => {
+    setIsProfileCompleted(isCompleted);
   };
 
   const contextValue = {
     token: token,
     userEmail: userEmail,
     isLoggedIn: userIsLoggedIn,
+    isProfileCompleted: isProfileCompleted,
     login: loginHandler,
     logout: logoutHandler,
+    updateProfileCompletion: updateProfileCompletionHandler,
   };
-
+  
   return (
     <AuthContext.Provider value={contextValue}>
       {props.children}
