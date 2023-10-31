@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState} from "react";
+import React, { useContext } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
 
@@ -16,15 +16,20 @@ const Home = () => {
   };
   console.log(isProfileCompleted)
 
-    return (
-        <div>
-          <h1>Welcome to the expense tracker</h1>
-            <Link to="/profile">
-              <p>Your profile is not completed. Complete now.</p>  
-            </Link>
-    
-          {isProfileCompleted && (
-            <Link to="/verification">
+ 
+        return (
+            <div>
+              <h1>Welcome to the expense tracker</h1>
+                {!isProfileCompleted && <Link to="/profile">
+                  <p>Your profile is not completed. Complete now.</p>  
+                </Link>}
+        
+                {isProfileCompleted && <Link to="/profile">
+                  <p>Still Want to Update The Profile. Lets Go.</p>  
+                </Link>}
+        
+              {isProfileCompleted && (
+                <Link to="/verification">
               <p>Your profile is completed. Go to Verification</p>
             </Link>
           )}
