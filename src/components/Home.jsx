@@ -14,7 +14,6 @@ const Home = () => {
     authCtx.logout();
     navigate("/");
   };
-  console.log(isProfileCompleted)
 
  
         return (

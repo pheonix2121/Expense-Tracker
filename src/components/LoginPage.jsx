@@ -2,7 +2,7 @@ import React, { useState, useRef, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../store/AuthContext";
 import classes from "./LoginPage.module.css";
-
+import axios from "axios";
 const LoginPage = () => {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
@@ -24,7 +24,25 @@ const LoginPage = () => {
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
   };
+  const forgotPasswordHandler = async () => {
+    const enteredEmail = emailInputRef.current.value;
 
+    setIsLoading(true);
+    const url = `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyCyl64gADY81JbozKq3BeQw11dASQRIrPE`;
+
+    try {
+      const response = await axios.post(url, {
+        email: enteredEmail,
+        requestType: "PASSWORD_RESET",
+      });
+
+      setIsLoading(false);
+      alert("Password reset email sent successfully!");
+    } catch (err) {
+      setIsLoading(false);
+      alert("Password reset failed!");
+    }
+  };
   const submitHandler = async (event) => {
     event.preventDefault();
     const enteredEmail = emailInputRef.current.value;
@@ -49,42 +67,30 @@ const LoginPage = () => {
     }
 
     try {
-      const response = await fetch(url, {
-        method: "POST",
-        body: JSON.stringify({
-          email: enteredEmail,
-          password: enteredPassword,
-          returnSecureToken: true,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const response = await axios.post(url, {
+        email: enteredEmail,
+        password: enteredPassword,
+        returnSecureToken: true,
       });
 
       setIsLoading(false);
-      if (response.ok) {
-        if (isLogin) {
-          const data = await response.json();
-          const modifiedEmail = enteredEmail.replace(/[@.]/g, "-");
-          authCtx.login({
-            token: data.idToken,
-            userEmail: modifiedEmail,
-            isProfileCompleted: data.isProfileCompleted,
-          });
-          navigate("/home");
-        } else {
-          setIsLogin(true);
-        }
+      if (isLogin) {
+        const data = response.data;
+        const modifiedEmail = enteredEmail.replace(/[@.]/g, "-");
+        authCtx.login({
+          token: data.idToken,
+          userEmail: modifiedEmail,
+          isProfileCompleted: data.isProfileCompleted,
+        });
+        navigate("/home");
+     
       } else {
-        const errorData = await response.json();
-        let errorMessage = "Authentication failed!";
-        if (errorData && errorData.error && errorData.error.message) {
-          errorMessage = errorData.error.message;
-        }
-        throw new Error(errorMessage);
+        setIsLogin(true);
       }
     } catch (err) {
-      alert(err.message);
+      setIsLoading(false);
+      const errorMessage = err.response.data.error.message || "Authentication failed!";
+      alert(errorMessage);
     }
   };
 
@@ -130,6 +136,11 @@ const LoginPage = () => {
           <button type="button" onClick={switchAuthModeHandler}>
             {isLogin ? "Create new account" : "Login with existing account"}
           </button>
+          {isLogin && (
+            <button type="button" onClick={forgotPasswordHandler}>
+              Forgot Password
+            </button>
+          )}
         </div>
       </form>
     </section>
