@@ -5,7 +5,7 @@ import Profile from "./components/ProfilePage";
 import LoginPage from "./components/LoginPage";
 import Home from "./components/Home";
 import Verification from "./components/Verification";
-
+import ExpenseTracker from "./components/ExpenseTracker";
 function App() {
   const authCtx = useContext(AuthContext);
   const navigate = useNavigate();
@@ -22,6 +22,7 @@ function App() {
       <Route path="/home" element={<Home />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/verification" element={<Verification />} />
+      <Route path="/expenseTracker" element={<ExpenseTracker />} />
       <Route
         path="*"
         element={
