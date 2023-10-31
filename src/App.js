@@ -1,24 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
+import { useContext, useEffect } from "react";
+import AuthContext from "./store/AuthContext";
+import LoginPage from "./components/LoginPage";
+import Home from "./components/Home";
 
 function App() {
+  const authCtx = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authCtx.isLoggedIn) {
+      navigate("/", { replace: true });
+    }
+  }, [authCtx.isLoggedIn, navigate]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="*" element={authCtx.isLoggedIn ? null : <Navigate to="/" replace />} />
+      </Routes>
   );
 }
 
