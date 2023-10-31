@@ -69,6 +69,7 @@ const LoginPage = () => {
           authCtx.login({
             token: data.idToken,
             userEmail: modifiedEmail,
+            isProfileCompleted: data.isProfileCompleted,
           });
           navigate("/home");
         } else {

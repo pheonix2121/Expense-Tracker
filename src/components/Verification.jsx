@@ -25,7 +25,7 @@ const Verification = () => {
       );
       const user = response.data.users[0];
       if (user.emailVerified) {
-        navigate("/welcome");
+        navigate("/home");
       } else {
         sendVerificationEmail();
       }

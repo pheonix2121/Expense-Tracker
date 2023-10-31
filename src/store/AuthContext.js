@@ -1,75 +1,89 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const AuthContext = React.createContext({
   token: "",
+  userEmail: "",
+  userProfileData: {},
   isLoggedIn: false,
-  login: (token) => {},
+  isProfileCompleted: false,
+  login: (userAuthData) => {},
   logout: () => {},
-  userName: "",
-  addUserName: (name) => {},
-  isVerified: false,
-  verificationHandler: (bool) => {},
+  updateProfileCompletion: (bool) => {},
 });
 
 
 export const AuthContextProvider = (props) => {
-  const userAuthToken = JSON.parse(localStorage.getItem("Authdata"));
-  const [Authdata, setAuthData] = useState(userAuthToken || {});
-  const [token, setToken] = useState(Authdata.token || null);
-  const [userName, setUserName] = useState(Authdata.userName || null);
-  const [isVerified, setIsVerified] = useState(Authdata.isVerified || false);
+  const initialToken = JSON.parse(localStorage.getItem("userdata"));
+  const [token, setToken] = useState(initialToken ? initialToken.token : "");
+  const [userEmail, setUserEmail] = useState(
+    initialToken ? initialToken.userEmail : ""
+  );
+  const [isProfileCompleted, setIsProfileCompleted] = useState(false);
+  const [userProfileData, setUserProfileData] = useState({});
 
-  const isLoggedIn = !!token;
+  console.log(isProfileCompleted, userProfileData)
 
-  const loginHandler = (token) => {
-    const updatedAuthData = {
-      ...Authdata,
-      token: token,
-      isVerified: isVerified,
-    };
-    setAuthData(updatedAuthData);
-    localStorage.setItem("Authdata", JSON.stringify(updatedAuthData));
-    setToken(token);
+  const userIsLoggedIn = !!token;
+
+  const loginHandler = (userData) => {
+    setUserEmail(userData.userEmail);
+    setToken(userData.token);
+    setIsProfileCompleted(userData.isProfileCompleted);
+    localStorage.setItem(
+      "userdata",
+      JSON.stringify({
+        token: userData.token,
+        userEmail: userData.userEmail,
+        isProfileCompleted: userData.isProfileCompleted,
+      })
+    );
   };
 
-  
-  const logOutHandler = () => {
-    localStorage.removeItem("Authdata");
-    setAuthData({});
+  const logoutHandler = () => {
     setToken(null);
-    setUserName(null);
-    setIsVerified(false);
+    setUserEmail("");
+    setIsProfileCompleted(false);
+    setUserProfileData({});
+    localStorage.removeItem("userdata");
   };
 
-  const userNameHandler = (name) => setUserName(name);
+  const updateProfileCompletionHandler = async () => {
+    try {
+      const response = await axios.post(
+        `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyCUQkIpkp-AV5ksPj3lxbd94zq0PzufhHI`,
+        {
+          idToken: token,
+        }
+      );
+      const user = response.data.users[0];
+      if (user.displayName && user.photoUrl) {
+        setUserProfileData({
+          displayName: user.displayName,
+          photoUrl: user.photoUrl,
+        });
+        setIsProfileCompleted(true);
+      }
 
-  const verificationHandler = (bool) => {
-    setIsVerified(bool);
-
-    const apiUrl = `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyCUQkIpkp-AV5ksPj3lxbd94zq0PzufhHI`;
-
-    axios.post(apiUrl, {
-        requestType: "VERIFY_EMAIL",
-        idToken: token,
-      })
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+      console.log(user);
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  useEffect(() => {
+    if(userIsLoggedIn) updateProfileCompletionHandler();
+  }, [token]);
 
   const contextValue = {
     token: token,
-    isLoggedIn: isLoggedIn,
+    userEmail: userEmail,
+    userProfileData: userProfileData,
+    isLoggedIn: userIsLoggedIn,
+    isProfileCompleted: isProfileCompleted,
     login: loginHandler,
-    logout: logOutHandler,
-    userName: userName,
-    addUserName: userNameHandler,
-    isVerified: isVerified,
-    verificationHandler: verificationHandler,
+    logout: logoutHandler,
+    updateProfileCompletion: updateProfileCompletionHandler,
   };
 
   return (
