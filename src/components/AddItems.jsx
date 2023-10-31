@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-
-const AddItem = (props) => {
+import React, { useContext, useState } from "react";
+import ItemContext from "../store/ItemContext";
+const AddItem = () => {
+  const { addItem } = useContext(ItemContext);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-
   const handleAmountChange = (event) => {
     setAmount(event.target.value);
   };
@@ -26,13 +26,13 @@ const AddItem = (props) => {
     }
 
     const newItem = {
-      id: Math.random().toString(),
+      
       amount: +amount,
       description,
       category,
     };
 
-    props.onAddItem(newItem);
+    addItem(newItem);
 
     setAmount("");
     setDescription("");
@@ -63,7 +63,11 @@ const AddItem = (props) => {
         </div>
         <div>
           <label htmlFor="category">Category:</label>
-          <select id="category" value={category} onChange={handleCategoryChange}>
+          <select
+            id="category"
+            value={category}
+            onChange={handleCategoryChange}
+          >
             <option value="">Select category</option>
             <option value="Food">Food</option>
             <option value="Petrol">Petrol</option>

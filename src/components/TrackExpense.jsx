@@ -1,16 +1,26 @@
-import React from "react";
-import Items from "./Items";
+import React, { useContext } from "react";
+import ItemContext from "../store/ItemContext";
+const TrackExpense = () => {
+  const { items, removeItem } = useContext(ItemContext);
 
-const TrackExpense = (props) => {
-  const totalAmount = props.items.reduce((sum, item) => sum + item.amount, 0);
+  const handleRemoveItem = (itemId) => {
+    removeItem(itemId);
+  };
+
+  const totalAmount = items.reduce((total, item) => total + item.amount, 0);
 
   return (
     <div>
-      <h1>All Expenses</h1>
+      <h2>All Expenses</h2>
       <div>
-        {props.items.map((item) => {
-          return <Items key={item.id} item={item} />;
-        })}
+        {items.map((item) => (
+          <div key={item.id}>
+            <h5>Rs. {item.amount}</h5>
+            <p>{item.description}</p>
+            <h5>{item.category}</h5>
+            <button onClick={() => handleRemoveItem(item.id)}>Remove</button>
+          </div>
+        ))}
       </div>
       <p>Total Amount: {totalAmount}</p>
     </div>
