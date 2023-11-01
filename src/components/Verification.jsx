@@ -18,7 +18,7 @@ const Verification = () => {
     const idToken = authCtx.token;
     try {
       const response = await axios.post(
-        `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyCUQkIpkp-AV5ksPj3lxbd94zq0PzufhHI`,
+        `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyCyl64gADY81JbozKq3BeQw11dASQRIrPE`,
         {
           idToken: idToken,
         }
@@ -38,7 +38,7 @@ const Verification = () => {
     const idToken = authCtx.token;
     try {
       await axios.post(
-        `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyCUQkIpkp-AV5ksPj3lxbd94zq0PzufhHI`,
+        `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyCyl64gADY81JbozKq3BeQw11dASQRIrPE`,
         {
           requestType: "VERIFY_EMAIL",
           idToken: idToken,

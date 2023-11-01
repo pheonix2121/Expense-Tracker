@@ -1,10 +1,20 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import ItemContext from "../store/ItemContext";
 const AddItem = () => {
-  const { addItem } = useContext(ItemContext);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
+  const itemCtx = useContext(ItemContext);
+
+  useEffect(() => {
+    if (itemCtx.editItem.id) {
+      setAmount(itemCtx.editItem.amount);
+      setCategory(itemCtx.editItem.category);
+      setDescription(itemCtx.editItem.description);
+    }
+  }, [itemCtx.editItem]);
+
+
   const handleAmountChange = (event) => {
     setAmount(event.target.value);
   };
@@ -32,8 +42,11 @@ const AddItem = () => {
       category,
     };
 
-    addItem(newItem);
-
+    if (itemCtx.editItem.id) {
+      itemCtx.editItemHandler(itemCtx.editItem.id, newItem);
+    } else {
+      itemCtx.addItem(newItem);
+    }
     setAmount("");
     setDescription("");
     setCategory("");
