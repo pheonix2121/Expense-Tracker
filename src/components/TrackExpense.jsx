@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setEditItem, removeItem, premiumHandler } from "../store/ItemRedux";
+import { setEditItem, removeItem, premiumHandler} from "../store/ItemRedux";
 import { removeItemHandler } from "../store/ItemApi";
 import classes from "./TrackExpense.module.css";
+import { darkModeHandler } from "../store/AuthRedux";
+import CsvFileDown from "./CsvFileDown";
 
 const TrackExpense = () => {
   const items = useSelector((state) => state.item.items);
@@ -16,6 +18,10 @@ const TrackExpense = () => {
   const handleEdit = (item) => {
     dispatch(setEditItem(item));
   };
+
+  const switchTheme=()=>{
+    dispatch(darkModeHandler())
+  }
 
   useEffect(()=>{
     if(totalAmount >= 10000){
@@ -44,7 +50,9 @@ const TrackExpense = () => {
   return (
     <div className={classes.expense}>
       <h2>Track Expense</h2>
-      {isPremium && <button>Buy Premium</button>}
+      <CsvFileDown/>
+      {isPremium && <button onClick={switchTheme}>Buy Premium</button>}
+      
       {items.length === 0 ? (
         <p>No items found.</p>
       ) : (

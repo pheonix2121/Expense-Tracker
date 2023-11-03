@@ -8,8 +8,8 @@ const initialState = {
     userName: localState && localState.userName,
     isLoggedIn: localState && localState.token?  true : false,
     isProfileCompleted: false,
-    profileInformation : {displayName: '', photoUrl: ''}
-
+    profileInformation : {displayName: '', photoUrl: ''},
+    isDark: false
   }
 const authSlice = createSlice({
   name: "auth",
@@ -37,15 +37,19 @@ const authSlice = createSlice({
       state.isProfileCompleted = false;
       state.isLoggedIn = false;
       state.profileInformation ={displayName: '', photoUrl: ''}
+      state.isDark= false;
       localStorage.removeItem("userdata");
     },
     updateProfileCompletion(state, action) {
       const {displayName, photoUrl} = action.payload;
       if(displayName && photoUrl){
+       
 
         state.profileInformation= { displayName: displayName, photoUrl: photoUrl}
         state.isProfileCompleted= true;
       }
+
+       
 
     },
     setUserProfileData(state, action) {
@@ -53,10 +57,15 @@ const authSlice = createSlice({
       state.userProfileData = { displayName, photoUrl };
       state.isProfileCompleted = true;
     },
+
+    darkModeHandler(state, action){
+      state.isDark = !state.isDark;
+    }
   },
 });
 
-export const { login, logout, updateProfileCompletion, setUserProfileData } = 
+      
+export const { login, logout, updateProfileCompletion, setUserProfileData, darkModeHandler } =
   authSlice.actions;
 
-export default authSlice.reducer;
+  export default authSlice.reducer;
