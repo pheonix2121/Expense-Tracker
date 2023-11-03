@@ -1,18 +1,25 @@
-import React, { useContext, useState, useEffect } from "react";
-import ItemContext from "../store/ItemContext";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addItemHandler, editItemHandler } from "../store/ItemApi";
+import { addItem, updateItem } from "../store/ItemRedux";
+import classes from "./AddItem.module.css"
 const AddItem = () => {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const itemCtx = useContext(ItemContext);
+  const dispatch = useDispatch();
+  const editItem = useSelector((state) => state.item.editItem);
+  const authData = useSelector( state => state.auth);
+  const modifiedEmail = authData.userEmail.replace(/[@.]/g, "-");
 
   useEffect(() => {
-    if (itemCtx.editItem.id) {
-      setAmount(itemCtx.editItem.amount);
-      setCategory(itemCtx.editItem.category);
-      setDescription(itemCtx.editItem.description);
+    if (editItem.id) {
+      setAmount(editItem.amount);
+      setCategory(editItem.category);
+      setDescription(editItem.description);
     }
-  }, [itemCtx.editItem]);
+  }, [editItem]);
+
 
 
   const handleAmountChange = (event) => {
@@ -27,7 +34,7 @@ const AddItem = () => {
     setCategory(event.target.value);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (amount.trim() === "" || description.trim() === "" || category === "") {
@@ -37,15 +44,23 @@ const AddItem = () => {
 
     const newItem = {
       
-      amount: +amount,
+      amount: amount,
       description,
       category,
     };
 
-    if (itemCtx.editItem.id) {
-      itemCtx.editItemHandler(itemCtx.editItem.id, newItem);
+    if (editItem.id) {
+      const res = await editItemHandler({
+        userEmail: modifiedEmail, itemId: editItem.id, updatedItem:newItem
+      })
+      dispatch(updateItem(res));  
+
     } else {
-      itemCtx.addItem(newItem);
+     const res = await addItemHandler({
+      userEmail: modifiedEmail, 
+      newItem: newItem
+    })
+      dispatch(addItem(res));
     }
     setAmount("");
     setDescription("");
@@ -53,7 +68,7 @@ const AddItem = () => {
   };
 
   return (
-    <div>
+    <div className={classes.item}>
       <h2>Add Item</h2>
       <form onSubmit={handleSubmit}>
         <div>

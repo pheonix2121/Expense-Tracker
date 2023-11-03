@@ -1,35 +1,73 @@
-import React, { useContext } from "react";
-import ItemContext from "../store/ItemContext";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setEditItem, removeItem, premiumHandler } from "../store/ItemRedux";
+import { removeItemHandler } from "../store/ItemApi";
+import classes from "./TrackExpense.module.css";
+
 const TrackExpense = () => {
-  const { items, removeItem, takeEditItem } = useContext(ItemContext);
+  const items = useSelector((state) => state.item.items);
+  const authData = useSelector((state) => state.auth);
+  const totalAmount = items.reduce((total, item) => total + +item.amount, 0);
+  const modifiedEmail = authData.userEmail.replace(/[@.]/g, "-");
+  const dispatch = useDispatch();
+  const isPremium = useSelector((state) => state.item.isPremium);
 
-  const handleRemoveItem = (itemId) => {
-    removeItem(itemId);
+
+  const handleEdit = (item) => {
+    dispatch(setEditItem(item));
   };
-  const handleEditItem = (item) => {
-    takeEditItem(item);
+
+  useEffect(()=>{
+    if(totalAmount >= 10000){
+      dispatch(premiumHandler(true))
+    }else {
+      dispatch(premiumHandler(false))
+    }
+
+
+  },[totalAmount])
+
+
+
+
+  const handleDelete = async (id) => {
+
+
+    const res = await removeItemHandler({
+      userEmail: modifiedEmail,
+      itemId: id,
+    });
+    if (res === id) dispatch(removeItem(id));
+    else console.log(res);
   };
-
-
-  const totalAmount = items.reduce((total, item) => total + item.amount, 0);
-
-  console.log(items)
 
   return (
-    <div>
-      <h2>All Expenses</h2>
-      <div>
-        {items.map((item) => (
-          <div key={item.id}>
-            <h5>Rs. {item.amount}</h5>
-            <p>{item.description}</p>
-            <h5>{item.category}</h5>
-            <button onClick={() => handleRemoveItem(item.id)}>Remove</button>
-            <button onClick={() => handleEditItem(item)}>Edit</button>
+    <div className={classes.expense}>
+      <h2>Track Expense</h2>
+      {isPremium && <button>Buy Premium</button>}
+      {items.length === 0 ? (
+        <p>No items found.</p>
+      ) : (
+        <ul>
+          <div>
+            <h2>Total Amount: {totalAmount}</h2>
           </div>
-        ))}
-      </div>
-      <p>Total Amount: {totalAmount}</p>
+          {items.map((item) => (
+            <li key={item.id}>
+              <div>
+                <p>Amount: {item.amount}</p>
+                <p>Description: {item.description}</p>
+                <p>Category: {item.category}</p>
+              </div>
+
+              <div>
+                <button onClick={() => handleEdit(item)}>Edit</button>
+                <button onClick={() => handleDelete(item.id)}>Delete</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

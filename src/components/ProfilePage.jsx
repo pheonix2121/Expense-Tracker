@@ -1,56 +1,76 @@
 
-import React, { useState, useEffect } from "react";
-import { useContext } from "react";
-import AuthContext from "../store/AuthContext";
-import { useNavigate } from "react-router-dom";import axios  from "axios";
-
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { updateProfileCompletion } from "../store/AuthRedux";
+import { getProfileData, updateProfile } from "../store/AuthApi";
 const Profile = () => {
-  const authCtx = useContext(AuthContext);
-  const [fullName, setFullName] = useState(authCtx.userProfileData.displayName || "");
-  const [photoURL, setPhotoURL] = useState(authCtx.userProfileData.photoUrl || "");
+  const authData = useSelector(state => state.auth)
+  const [fullName, setFullName] = useState("");
+  const [photoURL, setPhotoURL] = useState("");
 
-  const navigate= useNavigate();
-  function goToHome(){
-    navigate("/home")
-  }
-  
+  const idToken = useSelector(state => state.auth.token)
 
-  const saveProfileHandler = async () => {
-    const idToken = authCtx.token;
-    try {
-      const response = await axios.post(
-        `https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyCyl64gADY81JbozKq3BeQw11dASQRIrPE`,
-        {
-          idToken: idToken,
-          displayName: fullName,
-          photoUrl: photoURL,
-          returnSecureToken	: true
-        }
-      );
-      authCtx.updateProfileCompletion();
-    } catch (error) {
-      console.log(error);
+  const dispatch = useDispatch();
+
+useEffect(() => {
+setFullName(authData.isProfileCompleted ? authData.profileInformation.displayName : "");
+setPhotoURL(authData.isProfileCompleted ? authData.profileInformation.photoUrl : "")
+},[authData])
+
+  const handleFullNameChange = (event) => {
+    setFullName(event.target.value);
+  };
+
+  const handlePhotoURLChange = (event) => {
+    setPhotoURL(event.target.value);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (fullName.trim() === "" || photoURL.trim() === "") {
+      alert("Please enter full name and photo URL.");
+      return;
     }
+
+    const res = await updateProfile({
+      idToken: idToken, fullName: fullName, photoURL: photoURL
+    })
+
+    const userData = await getProfileData(authData.token)
+
+    if(userData.users[0]){
+      dispatch(updateProfileCompletion({
+        displayName: userData.users[0].displayName, photoUrl: userData.users[0].photoUrl
+      }))
+    }
+    setFullName("");
+    setPhotoURL("");
   };
 
   return (
     <div>
-      <label>Your Full Name</label>
-      <input
-        type="text"
-        id="name"
-        value={fullName}
-        onChange={(event) => setFullName(event.target.value)}
-      />
-      <label>Profile Photo URL</label>
-      <input
-        type="text"
-        id="dp"
-        value={photoURL}
-        onChange={(event) => setPhotoURL(event.target.value)}
-      />
-      <button onClick={saveProfileHandler}>Update</button>
-      <button onClick={goToHome}>Go To Home</button>
+      <h2>Profile</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="fullName">Full Name</label>
+          <input
+            type="text"
+            id="fullName"
+            value={fullName}
+            onChange={handleFullNameChange}
+          />
+        </div>
+        <div>
+          <label htmlFor="photoURL">Photo URL</label>
+          <input
+            type="text"
+            id="photoURL"
+            value={photoURL}
+            onChange={handlePhotoURLChange}
+          />
+        </div>
+        <button type="submit">Update Profile</button>
+      </form>
     </div>
   );
 };

@@ -1,23 +1,30 @@
-import React, { useContext } from "react";
-
+import React, {  useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
-import AuthContext from "../store/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../store/AuthRedux";
+import classes from "./Home.module.css"
 
 const Home = () => {
   const navigate = useNavigate();
-  const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
 
-  const isLoggedIn = authCtx.isLoggedIn;
-  const isProfileCompleted = authCtx.isProfileCompleted;
+  const { isLoggedIn, isProfileCompleted} = useSelector(state=> state.auth)
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/");
+    }
+  }, [isLoggedIn, navigate]);
+
   const logoutHandler = () => {
-    authCtx.logout();
+    dispatch(logout());
     navigate("/");
   };
 
- 
-        return (
-            <div>
+
+
+  return (
+    <div className={classes.homeElem}>
               <h1>Welcome to the expense tracker</h1>
               {!isProfileCompleted && (
         <Link to="/profile">
@@ -27,7 +34,7 @@ const Home = () => {
 
       {isProfileCompleted && (
         <Link to="/profile">
-          <p>Still Want to Update The Profile. Lets Go.</p>
+        <p>Still Want to Update The Profile. Let's Go.</p>
         </Link>
       )}
               {isProfileCompleted && (

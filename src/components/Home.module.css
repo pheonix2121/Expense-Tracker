@@ -1,0 +1,41 @@
+.homeElem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+  }
+
+  .homeElem h1 {
+    font-size: 40px;
+    margin-bottom: 20px;
+  }
+
+  .homeElem p {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .homeElem a {
+    text-decoration: none;
+    color: #007bff;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .homeElem a:hover {
+    text-decoration: underline;
+  }
+
+  .homeElem button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .homeElem button:hover {
+    background-color: #0056b3;
+  }
